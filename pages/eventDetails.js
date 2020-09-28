@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   textDate: {
-    paddingHorizontal: 200,
+    alignSelf: "flex-end",
   },
   rating: {
     flexDirection: "row",

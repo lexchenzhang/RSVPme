@@ -26,6 +26,7 @@ export default function Header({ title, navigation }) {
         style={styles.icon}
       />
       <View style={styles.headerTitle}>
+        <MaterialIcons name="face" size={28} style={styles.headerImage} />
         <Text style={styles.headerText}>{title}</Text>
       </View>
     </ImageBackground>

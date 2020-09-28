@@ -8,6 +8,8 @@ import FlatButton from "../components/button";
 const eventSchema = yup.object({
   title: yup.string().required().min(4),
   body: yup.string().required().min(8),
+  address: yup.string().required().min(8),
+  date: yup.string().required().min(8),
   rating: yup
     .string()
     .required()
@@ -50,6 +52,30 @@ export default function EventForm({ addEvent: addEvent }) {
             />
             <Text style={globalStyles.errorText}>
               {props.touched.body && props.errors.body}
+            </Text>
+
+            <TextInput
+              style={globalStyles.input}
+              multiline
+              placeholder="Event Address"
+              onChangeText={props.handleChange("address")}
+              value={props.values.address}
+              onBlur={props.handleBlur("address")}
+            />
+            <Text style={globalStyles.errorText}>
+              {props.touched.address && props.errors.address}
+            </Text>
+
+            <TextInput
+              style={globalStyles.input}
+              multiline
+              placeholder="Event Date"
+              onChangeText={props.handleChange("date")}
+              value={props.values.date}
+              onBlur={props.handleBlur("date")}
+            />
+            <Text style={globalStyles.errorText}>
+              {props.touched.date && props.errors.date}
             </Text>
 
             <TextInput

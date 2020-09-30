@@ -6,6 +6,7 @@ import {
   Dimensions,
   Image,
   ImageBackground,
+  Button,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -19,15 +20,25 @@ export default function Header({ title, navigation }) {
       source={require("../assets/pics/game_bg.png")}
       style={styles.header}
     >
-      <MaterialIcons
-        name="menu"
-        size={28}
-        onPress={openMenu}
-        style={styles.icon}
-      />
-      <View style={styles.headerTitle}>
-        <MaterialIcons name="face" size={28} style={styles.headerImage} />
-        <Text style={styles.headerText}>{title}</Text>
+      <View
+        style={{
+          width: "100%",
+          // backgroundColor: "red",
+          flex: 1,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <MaterialIcons
+          name="menu"
+          size={28}
+          onPress={openMenu}
+          style={styles.icon}
+        />
+        <View style={styles.headerTitle}>
+          <MaterialIcons name="face" size={28} style={styles.headerImage} />
+          <Text style={styles.headerText}>{title}</Text>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -49,11 +60,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   icon: {
-    position: "absolute",
-    left: 16,
+    width: "20%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
+    width: "60%",
     flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerImage: {
     width: 26,

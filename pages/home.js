@@ -13,6 +13,7 @@ import { globalStyles } from "../styles/global";
 import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
 import EventForm from "./eventForm";
+import axios from "axios";
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,14 +26,6 @@ export default function Home({ navigation }) {
       address: "xxx street",
       key: "1",
     },
-    {
-      title: "XX Party",
-      rating: 4,
-      body: "This party is host by CS department.",
-      date: "2020/10/15",
-      address: "xxx hall",
-      key: "2",
-    },
   ]);
 
   const addEvent = (event) => {
@@ -42,6 +35,14 @@ export default function Home({ navigation }) {
     });
     setModalOpen(false);
   };
+
+  // axios
+  //   .post(
+  //     "http://39.107.240.174/api/capstone/getevents?uid=1&appid=capstone&access_token=test_token&sign=capstone&info="
+  //   )
+  //   .then(function (response) {
+  //     console.log(response.data.list);
+  //   });
 
   return (
     <View style={globalStyles.container}>

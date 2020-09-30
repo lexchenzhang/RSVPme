@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -12,9 +12,11 @@ import { globalStyles, images } from "../styles/global";
 import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import { RegionContext } from "../components/region";
 
 export default function EventDetails({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [region] = useContext(RegionContext);
   const rating = navigation.getParam("rating");
   const rows = [];
   for (var i = 0; i < rating; i++) {
@@ -35,12 +37,7 @@ export default function EventDetails({ navigation }) {
               <MapView
                 provider={PROVIDER_GOOGLE} // remove if not using Google Maps
                 style={styles.map}
-                region={{
-                  latitude: 33.577862,
-                  longitude: -101.855164,
-                  latitudeDelta: 0.015,
-                  longitudeDelta: 0.0121,
-                }}
+                region={region}
               ></MapView>
             </View>
           </View>

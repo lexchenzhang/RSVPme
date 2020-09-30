@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as Font from "expo-font";
 import { AppLoading } from "expo";
 import Navigator from "./routes/drawer";
+import { RegionContextProvider, RegionContext } from "./components/region";
 
 const getFonts = () => {
   return Font.loadAsync({
@@ -13,7 +14,11 @@ const getFonts = () => {
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   if (fontsLoaded) {
-    return <Navigator />;
+    return (
+      <RegionContextProvider>
+        <Navigator />
+      </RegionContextProvider>
+    );
   } else {
     return (
       <AppLoading startAsync={getFonts} onFinish={() => setFontsLoaded(true)} />

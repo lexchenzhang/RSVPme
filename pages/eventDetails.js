@@ -17,7 +17,7 @@ import { RegionContext } from "../components/region";
 export default function EventDetails({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [region] = useContext(RegionContext);
-  const rating = navigation.getParam("rating");
+  const rating = navigation.getParam("event_rating");
   const rows = [];
   for (var i = 0; i < rating; i++) {
     rows.push(<MaterialIcons name="star" size={24} key={i} />);
@@ -46,11 +46,13 @@ export default function EventDetails({ navigation }) {
 
       <Card>
         <Text style={{ ...globalStyles.titleText, ...styles.textTitle }}>
-          {navigation.getParam("title")}
+          {navigation.getParam("event_title")}
         </Text>
-        <Text style={styles.textBody}>{navigation.getParam("body")}</Text>
-        <Text style={styles.textDate}>{navigation.getParam("address")}</Text>
-        <Text style={styles.textDate}>{navigation.getParam("date")}</Text>
+        <Text style={styles.textBody}>{navigation.getParam("event_body")}</Text>
+        <Text style={styles.textDate}>
+          {navigation.getParam("event_address")}
+        </Text>
+        <Text style={styles.textDate}>{navigation.getParam("event_date")}</Text>
         <View style={styles.rating}>
           <Text>Rating: </Text>
           {rows}

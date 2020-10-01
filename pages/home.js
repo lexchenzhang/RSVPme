@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -14,16 +14,17 @@ import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
 import EventForm from "./eventForm";
 import axios from "axios";
+import Event from "../components/event";
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([
     {
-      title: "Game Day",
-      rating: 5,
-      body: "This game is TTU vs xxx which hold on xxx.",
-      date: "2020/09/20",
-      address: "xxx street",
+      event_title: "Game Day",
+      event_rating: 5,
+      event_body: "This game is TTU vs xxx which hold on xxx.",
+      event_date: "2020/09/20",
+      event_address: "xxx street",
       key: "1",
     },
   ]);
@@ -36,13 +37,21 @@ export default function Home({ navigation }) {
     setModalOpen(false);
   };
 
-  // axios
-  //   .post(
-  //     "http://39.107.240.174/api/capstone/getevents?uid=1&appid=capstone&access_token=test_token&sign=capstone&info="
-  //   )
-  //   .then(function (response) {
-  //     console.log(response.data.list);
-  //   });
+  useEffect(function effectFunction() {
+    async function fetchEvents() {
+      axios
+        .post(
+          "http://39.107.240.174/api/capstone/getevents?uid=1&appid=capstone&access_token=test_token&sign=capstone&info="
+        )
+        .then(function (response) {
+          response.data.list.map((e) => {
+            e.key = e._ctime;
+          });
+          setEvents(response.data.list);
+        });
+    }
+    fetchEvents();
+  }, []);
 
   return (
     <View style={globalStyles.container}>
@@ -74,10 +83,11 @@ export default function Home({ navigation }) {
             onPress={() => navigation.navigate("ReviewDetails", item)}
           >
             <Card>
-              <Text style={globalStyles.titleText}>{item.title}</Text>
+              <Text style={globalStyles.titleText}>{item.event_title}</Text>
             </Card>
           </TouchableOpacity>
         )}
+        keyExtractor={(item) => item.key.toString()}
       />
     </View>
   );

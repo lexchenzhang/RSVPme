@@ -27,7 +27,6 @@ export default function EventForm({ addEvent: addEvent }) {
         onSubmit={(values, actions) => {
           actions.resetForm();
           addEvent(values);
-          console.log(values);
         }}
       >
         {(props) => (

@@ -15,6 +15,7 @@ import Card from "../components/card";
 import EventForm from "./eventForm";
 import axios from "axios";
 import Event from "../components/event";
+const qs = require("qs");
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -41,13 +42,22 @@ export default function Home({ navigation }) {
     async function fetchEvents() {
       axios
         .post(
-          "http://39.107.240.174/api/capstone/getevents?uid=1&appid=capstone&access_token=test_token&sign=capstone&info="
+          "http://39.107.240.174/api/capstone/getevents",
+          qs.stringify({
+            uid: "1",
+            appid: "capstone",
+            access_token: "test_token",
+            sign: "capstone",
+            info: null,
+          })
         )
         .then(function (response) {
-          response.data.list.map((e) => {
-            e.key = e._ctime;
-          });
-          setEvents(response.data.list);
+          if (response.data.errno === 0) {
+            response.data.list.map((e) => {
+              e.key = e._ctime;
+            });
+            setEvents(response.data.list);
+          }
         });
     }
     fetchEvents();

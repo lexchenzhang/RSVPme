@@ -31,7 +31,33 @@ export default function Home({ navigation }) {
   ]);
 
   const addEvent = (event) => {
+    async function uploadEvent(data) {
+      let str = qs.stringify({
+        uid: "1",
+        appid: "capstone",
+        access_token: "test_token",
+        sign: "capstone",
+        info: JSON.stringify({
+          event_title: data.event_title,
+          event_body: data.event_body,
+          event_address: data.event_address,
+          event_date: data.event_date,
+          event_rating: data.event_rating
+        }),
+      });
+      axios
+        .post(
+          "http://39.107.240.174/api/capstone/createevent",
+          str
+        )
+        .then(function (response) {
+          if (response.data.errno === 0) {
+            console.log(response.data);
+          }
+        });
+    }
     event.key = Math.random().toString();
+    uploadEvent(event);
     setEvents((currentEvents) => {
       return [event, ...currentEvents];
     });

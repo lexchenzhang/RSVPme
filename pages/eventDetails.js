@@ -57,12 +57,15 @@ export default function EventDetails({ navigation }) {
           <Text>Rating: </Text>
           {rows}
         </View>
-        <MaterialIcons
-          name="map"
-          size={24}
-          style={styles.modalToggle}
-          onPress={() => setModalOpen(true)}
-        />
+        <View style={styles.showonmap}>
+          <MaterialIcons
+            name="map"
+            size={24}
+            style={styles.mbtn}
+            onPress={() => setModalOpen(true)}
+          />
+          <Text style={styles.mbtn}>Tap Icon To Show On Map</Text>
+        </View>
       </Card>
     </View>
   );
@@ -87,6 +90,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#eee",
   },
+  showonmap: {
+    flexDirection: "row",
+  },
   mcontainer: {
     ...StyleSheet.absoluteFillObject,
     marginTop: 100,
@@ -107,6 +113,15 @@ const styles = StyleSheet.create({
     marginTop: 50,
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#f2f2f2",
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: "center",
+  },
+  mbtn: {
+    marginTop: 10,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "#f2f2f2",

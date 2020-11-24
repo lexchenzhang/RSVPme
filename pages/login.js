@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Button, AsyncStorage } from "react-native";
+import { View, StyleSheet, Text, Button, AsyncStorage, TextInput } from "react-native";
 import { globalStyles } from "../styles/global";
 import * as AppAuth from "expo-app-auth";
 import * as Application from 'expo-application'
 
 export default function Login() {
   let [authState, setAuthState] = useState(null);
+  let [createAccountId, setCreateAccountId] = useState(null);
+  let [creatingAccount, setCreatingAccount] = useState(false);
+  let [username, setUsername] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -16,41 +19,61 @@ export default function Login() {
     })();
   }, []);
 
-  return (
-    <View style={StyleSheet.container}>
-      <Text>Expo AppAuth Example</Text>
-      <Button
-        title="Sign In with Google"
-        onPress={async () => {
-          const _authState = await signInAsync();
-          setAuthState(_authState);
-        }}
-      />
-      <Button
-        title="Sign Out"
-        onPress={async () => {
-          await signOutAsync(authState);
-          setAuthState(null);
-        }}
-      />
-      <Button
-        title="Reqest Email"
-        onPress={async () => {
-          console.log(await requestEmail());
-        }}
-      />
-    </View>
-  )
-}
+  let loginSignup = <Button
+                      style={globalStyles.button}
+                      title="Sign In with Google"
+                      onPress={async () => {
+                        const _authState = await signInAsync();
+                        setAuthState(_authState);
+                        if (true) // search for sub not on database
+                        {
+                          setCreateAccountId(await requestSub());
+                          await signOutAsync(_authState);
+                          setAuthState(null);
+                          setCreatingAccount(true);
+                        }
+                      }}
+                    />
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  if (authState) {
+    loginSignup = <Button
+                    style={globalStyles.button}
+                    title="Sign Out"
+                    onPress={async () => {
+                      await signOutAsync(authState);
+                      setAuthState(null);
+                    }}
+                  />
+  }
+
+  if(!creatingAccount) {
+    return (
+      <View style={globalStyles.container}>
+        {loginSignup}
+      </View>
+    )
+  } else {
+    return (
+      <View style={globalStyles.container}>
+        <Text>Username:</Text>
+        <TextInput 
+          style={globalStyles.input} 
+          onChangeText={text => setUsername(text)} 
+          value={username} 
+        />
+        <Button
+          style={globalStyles.button}
+          title="Create Account"
+          onPress={async() => {
+            // check if username is taken
+            // if not create new user with username and createAccountId
+            console.log(`Create new account ${username} | ${createAccountId}`);
+          }}
+        />
+      </View>
+    )
+  }
+}
 
 let config = {
   issuer: 'https://accounts.google.com',
@@ -106,22 +129,25 @@ export async function signOutAsync({ accessToken }) {
   }
 }
 
-export async function requestEmail() {
-  var myHeaders = new Headers();
+export async function requestSub() {
   var authState = await getCachedAuthAsync()
-  myHeaders.append("Authorization", `Bearer ${authState['accessToken']}`);
+  if(authState) {
+    var myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${authState['accessToken']}`);
 
-  var requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
 
-  return fetch("https://www.googleapis.com/oauth2/v3/userinfo", requestOptions).then(
-    response => response.text()
-  ).then(
-    result => JSON.parse(result)['email']
-  ).catch(
-    error => console.log('error', error)
-  );
+    return fetch("https://www.googleapis.com/oauth2/v3/userinfo", requestOptions).then(
+      response => response.text()
+    ).then(
+      result => "google:".concat(JSON.parse(result)["sub"])
+    ).catch(
+      error => console.log('error', error)
+    );
+  }
+  return null;
 }

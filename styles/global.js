@@ -28,4 +28,12 @@ export const globalStyles = StyleSheet.create({
     marginTop: 6,
     textAlign: "center",
   },
+  button: {
+    backgroundColor: "#44c767",
+    borderRadius: 6,
+    borderColor: "#18ab29",
+    borderWidth: 1,
+    borderStyle: "solid",
+    color: "#fff"
+  }
 });

@@ -5,6 +5,7 @@ import { createAppContainer } from "react-navigation";
 import HomeStack from "./homeStack";
 import AboutStack from "./aboutStack";
 import LoginStack from "./loginStack";
+import CalendarStack from "./calendarStack";
 
 // drawer navigation options
 const RootDrawerNavigator = createDrawerNavigator({
@@ -16,6 +17,9 @@ const RootDrawerNavigator = createDrawerNavigator({
   },
   Login: {
     screen: LoginStack,
+  },
+  Calendar: {
+    screen: CalendarStack,
   },
 });
 

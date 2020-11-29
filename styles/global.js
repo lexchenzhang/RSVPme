@@ -21,6 +21,14 @@ export const globalStyles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 6,
   },
+  badInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "crimson",
+    padding: 10,
+    fontSize: 18,
+    borderRadius: 6,
+  },
   errorText: {
     color: "crimson",
     fontWeight: "bold",

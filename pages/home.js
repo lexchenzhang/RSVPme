@@ -19,16 +19,7 @@ const qs = require("qs");
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [events, setEvents] = useState([
-    {
-      event_title: "Game Day",
-      event_rating: 5,
-      event_body: "This game is TTU vs xxx which hold on xxx.",
-      event_date: "2020/09/20",
-      event_address: "xxx street",
-      key: "1",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
 
   const addEvent = (event) => {
     async function uploadEvent(data) {

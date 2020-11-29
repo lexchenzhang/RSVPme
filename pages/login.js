@@ -3,12 +3,17 @@ import { View, StyleSheet, Text, Button, AsyncStorage, TextInput } from "react-n
 import { globalStyles } from "../styles/global";
 import * as AppAuth from "expo-app-auth";
 import * as Application from 'expo-application'
+import axios from "axios";
+import { set } from "react-native-reanimated";
+const qs = require("qs");
 
 export default function Login() {
   let [authState, setAuthState] = useState(null);
   let [createAccountId, setCreateAccountId] = useState(null);
   let [creatingAccount, setCreatingAccount] = useState(false);
   let [username, setUsername] = useState("");
+  let [loading, setLoading] = useState(false);
+  let [usernameTaken, setUsernameTaken] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -25,13 +30,32 @@ export default function Login() {
                       onPress={async () => {
                         const _authState = await signInAsync();
                         setAuthState(_authState);
-                        if (true) // search for sub not on database
-                        {
-                          setCreateAccountId(await requestSub());
-                          await signOutAsync(_authState);
-                          setAuthState(null);
-                          setCreatingAccount(true);
-                        }
+                        setLoading(true);
+                        // search for sub not on database
+                        let sub = await requestSub()
+                        let req = qs.stringify({
+                          uid: "1",
+                          appid: "capstone",
+                          access_token: "test_token",
+                          sign: "capstone",
+                          info: JSON.stringify({
+                            user_uid: sub
+                          }),
+                        });
+                        axios
+                          .post("https://www.splitvision.top/api/capstone/isUserExistByUID", req)
+                          .then(async function (response) {
+                            if (response.data.errno === 0) {
+                              setLoading(false);
+                            }
+                            if (response.data.errno === 4) {
+                              setCreateAccountId(await requestSub());
+                              await signOutAsync(_authState);
+                              setAuthState(null);
+                              setCreatingAccount(true);
+                              setLoading(false);
+                            }
+                          });
                       }}
                     />
 
@@ -46,6 +70,13 @@ export default function Login() {
                   />
   }
 
+  if(loading) {
+    return (
+      <View style={globalStyles.container}>
+        <Text style={styles.headers}>Loading</Text>
+      </View>
+    )
+  }
   if(!creatingAccount) {
     return (
       <View style={globalStyles.container}>
@@ -53,11 +84,15 @@ export default function Login() {
       </View>
     )
   } else {
+    let inputStyle = globalStyles.input;
+    if(usernameTaken) {
+      inputStyle = globalStyles.badInput;
+    }
     return (
       <View style={globalStyles.container}>
         <Text>Username:</Text>
         <TextInput 
-          style={globalStyles.input} 
+          style={inputStyle} 
           onChangeText={text => setUsername(text)} 
           value={username} 
         />
@@ -66,8 +101,47 @@ export default function Login() {
           title="Create Account"
           onPress={async() => {
             // check if username is taken
-            // if not create new user with username and createAccountId
-            console.log(`Create new account ${username} | ${createAccountId}`);
+            setLoading(true);
+            let req = qs.stringify({
+              uid: "1",
+              appid: "capstone",
+              access_token: "test_token",
+              sign: "capstone",
+              info: JSON.stringify({
+                user_name: username
+              }),
+            });
+            axios
+              .post("https://www.splitvision.top/api/capstone/getUserByName", req)
+              .then(async function (response) {
+                if (response.data.errno === 0) {
+                  setUsernameTaken(true);
+                }
+                if (response.data.errno === 4) {
+                  setUsernameTaken(false);
+                  let req = qs.stringify({
+                    uid: createAccountId,
+                    appid: "capstone",
+                    access_token: "test_token",
+                    sign: "capstone",
+                    info: JSON.stringify({
+                      user_name: username,
+                      user_pwd: "na",
+                      user_email: "na",
+                      user_phone: "na"
+                    }),
+                  });
+                  axios
+                    .post("https://www.splitvision.top/api/capstone/query", req)
+                    .then(async function (response) {
+                      if (response.data.errno === 0) {
+                        console.log(`Created ${username} | ${createAccountId}`);
+                        setCreatingAccount(false);
+                      }
+                    });
+                }
+                setLoading(false);
+              });
           }}
         />
       </View>
@@ -151,3 +225,10 @@ export async function requestSub() {
   }
   return null;
 }
+
+const styles = StyleSheet.create({
+  headers: {
+    textAlign: "center",
+    fontSize: 40
+  }
+})

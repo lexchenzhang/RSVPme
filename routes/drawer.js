@@ -6,6 +6,7 @@ import HomeStack from "./homeStack";
 import AboutStack from "./aboutStack";
 import LoginStack from "./loginStack";
 import CalendarStack from "./calendarStack";
+import FriendsStack from "./friendsStack";
 
 // drawer navigation options
 const RootDrawerNavigator = createDrawerNavigator({
@@ -21,6 +22,9 @@ const RootDrawerNavigator = createDrawerNavigator({
   Calendar: {
     screen: CalendarStack,
   },
+  Friends: {
+    screen: FriendsStack,
+  }
 });
 
 export default createAppContainer(RootDrawerNavigator);

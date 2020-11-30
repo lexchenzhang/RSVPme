@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -22,12 +22,14 @@ export default function Login() {
   let [username, setUsername] = useState("");
   let [loading, setLoading] = useState(false);
   let [usernameTaken, setUsernameTaken] = useState(false);
+  const user = useContext(UserContext);
 
   useEffect(() => {
     (async () => {
       let cachedAuth = await getCachedAuthAsync();
       if (cachedAuth && !authState) {
         setAuthState(cachedAuth);
+        requestSub().then(uid => user.setUID(uid));
       }
     })();
   }, []);
@@ -42,6 +44,7 @@ export default function Login() {
         setLoading(true);
         // search for sub not on database
         let sub = await requestSub();
+        user.setUID(sub)
         let req = qs.stringify({
           uid: "1",
           appid: "capstone",
@@ -78,8 +81,11 @@ export default function Login() {
         style={globalStyles.button}
         title="Sign Out"
         onPress={async () => {
+          setLoading(true)
+          user.setUID(null)
           await signOutAsync(authState);
           setAuthState(null);
+          setLoading(false)
         }}
       />
     );
@@ -219,7 +225,6 @@ export async function signOutAsync({ accessToken }) {
 }
 
 export async function requestSub() {
-  const user = useContext(UserContext);
   var authState = await getCachedAuthAsync();
 
   if (authState) {

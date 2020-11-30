@@ -3,24 +3,20 @@ import { createAppContainer } from "react-navigation";
 
 // stacks
 import HomeStack from "./homeStack";
-import AboutStack from "./aboutStack";
 import LoginStack from "./loginStack";
 import FriendsStack from "./friendsStack";
 
 // drawer navigation options
-const RootDrawerNavigator = createDrawerNavigator({
-  Home: {
-    screen: HomeStack,
-  },
-  About: {
-    screen: AboutStack,
-  },
+let RootDrawerNavigator = createDrawerNavigator({
   Login: {
     screen: LoginStack,
   },
+  Home: {
+    screen: HomeStack,
+  },
   Friends: {
     screen: FriendsStack,
-  }
+  },
 });
 
 export default createAppContainer(RootDrawerNavigator);

@@ -101,67 +101,100 @@ export default function Friends() {
       <View style={globalStyles.container}>
         <SearchAndButton placeholder="Add User" materialIcon="person-add" onSearch={text => {
           //Make sure the user isn't already added or in requests
-          console.log(friends)
-          console.log(requests);
+          let friendAdded = false;
+          friends.map((f, i) => {
+            if(text === f.user_name) {
+              console.log(`Friend ${text} is already added!`)
+              friendAdded = true;
+            }
+          })
           //Get the username to not add themselves
-          axios
-            .post(
-              "https://www.splitvision.top/api/capstone/isUserExistByUID",
-              qs.stringify({
-                uid: user.uid,
-                appid: "capstone",
-                access_token: "test_token",
-                sign: "signature",
-                info: JSON.stringify({
-                  user_uid: user.uid,
+          if(!friendAdded) {
+            axios
+              .post(
+                "https://www.splitvision.top/api/capstone/isUserExistByUID",
+                qs.stringify({
+                  uid: user.uid,
+                  appid: "capstone",
+                  access_token: "test_token",
+                  sign: "signature",
+                  info: JSON.stringify({
+                    user_uid: user.uid,
+                  })
                 })
-              })
-            )
-            .then(function (response) {
-              if(response.data.errno === 0){
-                const username = response.data.info.user_name;
-                if(text != username) {
-                  // Find the user they are searching for
-                  axios
-                    .post(
-                      "https://www.splitvision.top/api/capstone/getUserByName",
-                      qs.stringify({
-                        uid: user.uid,
-                        appid: "capstone",
-                        access_token: "test_token",
-                        sign: "signature",
-                        info: JSON.stringify({
-                          user_name: text,
+              )
+              .then(function (response) {
+                if(response.data.errno === 0){
+                  const username = response.data.info.user_name;
+                  if(text != username) {
+                    // Find the user they are searching for
+                    axios
+                      .post(
+                        "https://www.splitvision.top/api/capstone/getUserByName",
+                        qs.stringify({
+                          uid: user.uid,
+                          appid: "capstone",
+                          access_token: "test_token",
+                          sign: "signature",
+                          info: JSON.stringify({
+                            user_name: text,
+                          })
                         })
-                      })
-                    )
-                    .then(function (response) {
-                      if(response.data.errno === 0) {
-                        const friendUID = response.data.info.uid;
-                        // Send request
-                        axios
-                          .post(
-                            "https://www.splitvision.top/api/capstone/sendRequest",
-                            qs.stringify({
-                              uid: user.uid,
-                              appid: "capstone",
-                              access_token: "test_token",
-                              sign: "signature",
-                              info: JSON.stringify({
-                                target_uid: friendUID,
-                                user_name: username,
-                                user_message: ""
+                      )
+                      .then(function (response) {
+                        if(response.data.errno === 0) {
+                          const friendUID = response.data.info.uid;
+                          // Make sure request isn't already sent
+                          axios
+                            .post(
+                              "https://www.splitvision.top/api/capstone/getRequests",
+                              qs.stringify({
+                                uid: friendUID,
+                                appid: "capstone",
+                                access_token: "test_token",
+                                sign: "signature",
+                                info: null
                               })
+                            )
+                            .then(function (response) {
+                              // Send request
+                              let requestSent = false;
+                              if(response.data.errno === 0) {
+                                response.data.list.map((r, i) => {
+                                  if(r.user_name === username) {
+                                    console.log(`Request ${text} has already been sent!`)
+                                    requestSent = true;
+                                  }
+                                })
+                              }
+                              if(!requestSent) {
+                                axios
+                                  .post(
+                                    "https://www.splitvision.top/api/capstone/sendRequest",
+                                    qs.stringify({
+                                      uid: user.uid,
+                                      appid: "capstone",
+                                      access_token: "test_token",
+                                      sign: "signature",
+                                      info: JSON.stringify({
+                                        target_uid: friendUID,
+                                        user_name: username,
+                                        user_message: ""
+                                      })
+                                    })
+                                  )
+                                  .catch((error) => {console.log(`axios ${error}`)});
+                              }
                             })
-                          )
-                          .catch((error) => {console.log(`axios ${error}`)});
-                      }
-                    })
-                    .catch((error) => {console.log(`axios ${error}`)});
+                            .catch((error) => {console.log(`axios ${error}`)});
+                        }
+                      })
+                      .catch((error) => {console.log(`axios ${error}`)});
+                  }
                 }
-              }
-            })
-            .catch((error) => {console.log(`axios ${error}`)});
+              })
+              .catch((error) => {console.log(`axios ${error}`)});
+          }
         }} />
         <Text style={styles.headers}>Friends</Text>
         {

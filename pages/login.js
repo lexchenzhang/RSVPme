@@ -7,6 +7,7 @@ import {
   AsyncStorage,
   TextInput,
 } from "react-native";
+import { UserContext } from "../components/userContext";
 import { globalStyles } from "../styles/global";
 import * as AppAuth from "expo-app-auth";
 import * as Application from "expo-application";
@@ -218,7 +219,9 @@ export async function signOutAsync({ accessToken }) {
 }
 
 export async function requestSub() {
+  const user = useContext(UserContext);
   var authState = await getCachedAuthAsync();
+
   if (authState) {
     var myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${authState["accessToken"]}`);
@@ -236,6 +239,7 @@ export async function requestSub() {
       .then((response) => response.text())
       .then((result) => "google:".concat(JSON.parse(result)["sub"]))
       .catch((error) => console.log("error", error));
+    //put user.setUID() in result callback in order to save it.;
   }
   return null;
 }

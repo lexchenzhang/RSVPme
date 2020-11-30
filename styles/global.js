@@ -43,5 +43,9 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: "solid",
     color: "#fff"
-  }
+  },
+  headers: {
+    textAlign: "center",
+    fontSize: 40,
+  },
 });

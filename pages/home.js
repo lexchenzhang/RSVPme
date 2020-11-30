@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -15,18 +15,18 @@ import Card from "../components/card";
 import EventForm from "./eventForm";
 import axios from "axios";
 import { UserContext } from "../components/userContext";
-import Event from "../components/event";
 const qs = require("qs");
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
-  const user = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
+  const user = useContext(UserContext)
 
   const addEvent = (event) => {
     async function uploadEvent(data) {
       let str = qs.stringify({
-        uid: "1",
+        uid: user.uid,
         appid: "capstone",
         access_token: "test_token",
         sign: "capstone",
@@ -39,12 +39,26 @@ export default function Home({ navigation }) {
         }),
       });
       axios
-        .post("http://39.107.240.174/api/capstone/createevent", str)
+        .post("https://www.splitvision.top/api/capstone/createevent", str)
         .then(function (response) {
           if (response.data.errno === 0) {
             console.log(response.data);
           }
         });
+      axios
+        .post(
+          "https://www.splitvision.top/api/capstone/inviteFriends",
+          qs.stringify({
+            uid: user.uid,
+            appid: "capstone",
+            access_token: "test_token",
+            sign: "capstone",
+            info: JSON.stringify({
+              users: user.uid,
+              event_title: data.event_title,
+            }),
+          })
+        )
     }
     event.key = Math.random().toString();
     uploadEvent(event);
@@ -56,9 +70,10 @@ export default function Home({ navigation }) {
 
   useEffect(function effectFunction() {
     async function fetchEvents() {
-      axios
+      if(user.uid) {
+        axios
         .post(
-          "http://39.107.240.174/api/capstone/getevents",
+          "https://www.splitvision.top/api/capstone/getInvitations",
           qs.stringify({
             uid: user.uid,
             appid: "capstone",
@@ -73,50 +88,64 @@ export default function Home({ navigation }) {
               e.key = e._ctime;
             });
             setEvents(response.data.list);
+            setLoading(false);
           }
-        });
+        }).catch((error) => {console.log(`axios ${error}`)});
+      } else {
+        setEvents([]);
+        setLoading(false);
+      }
     }
+    setLoading(true);
     fetchEvents();
-  }, []);
+  }, [user.uid]);
 
-  return (
-    <View style={globalStyles.container}>
-      <Modal visible={modalOpen} animationType="slide">
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.modalContent}>
-            <MaterialIcons
-              name="close"
-              size={24}
-              style={{ ...styles.modalToggle, ...styles.modalClose }}
-              onPress={() => setModalOpen(false)}
-            />
-            <EventForm addEvent={addEvent} />
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+  if (loading) {
+    return (
+      <View style={globalStyles.container}>
+        <Text style={globalStyles.headers}>Loading</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={globalStyles.container}>
+        <Modal visible={modalOpen} animationType="slide">
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.modalContent}>
+              <MaterialIcons
+                name="close"
+                size={24}
+                style={{ ...styles.modalToggle, ...styles.modalClose }}
+                onPress={() => setModalOpen(false)}
+              />
+              <EventForm addEvent={addEvent} />
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
 
-      <MaterialIcons
-        name="add"
-        size={24}
-        style={styles.modalToggle}
-        onPress={() => setModalOpen(true)}
-      />
+        <MaterialIcons
+          name="add"
+          size={24}
+          style={styles.modalToggle}
+          onPress={() => setModalOpen(true)}
+        />
 
-      <FlatList
-        data={events}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ReviewDetails", item)}
-          >
-            <Card>
-              <Text style={globalStyles.titleText}>{item.event_title}</Text>
-            </Card>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.key.toString()}
-      />
-    </View>
-  );
+        <FlatList
+          data={events}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ReviewDetails", item)}
+            >
+              <Card>
+                <Text style={globalStyles.titleText}>{item.event_title}</Text>
+              </Card>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.key.toString()}
+        />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

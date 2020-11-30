@@ -14,12 +14,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
 import EventForm from "./eventForm";
 import axios from "axios";
+import { UserContext } from "../components/userContext";
 import Event from "../components/event";
 const qs = require("qs");
 
 export default function Home({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
+  const user = useContext(UserContext);
 
   const addEvent = (event) => {
     async function uploadEvent(data) {
@@ -33,14 +35,11 @@ export default function Home({ navigation }) {
           event_body: data.event_body,
           event_address: data.event_address,
           event_date: data.event_date,
-          event_rating: data.event_rating
+          event_rating: data.event_rating,
         }),
       });
       axios
-        .post(
-          "http://39.107.240.174/api/capstone/createevent",
-          str
-        )
+        .post("http://39.107.240.174/api/capstone/createevent", str)
         .then(function (response) {
           if (response.data.errno === 0) {
             console.log(response.data);
@@ -61,7 +60,7 @@ export default function Home({ navigation }) {
         .post(
           "http://39.107.240.174/api/capstone/getevents",
           qs.stringify({
-            uid: "1",
+            uid: user.uid,
             appid: "capstone",
             access_token: "test_token",
             sign: "capstone",

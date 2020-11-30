@@ -3,6 +3,7 @@ import * as Font from "expo-font";
 import { AppLoading } from "expo";
 import Navigator from "./routes/drawer";
 import { RegionContextProvider, RegionContext } from "./components/region";
+import { UserProvider } from "./components/userContext";
 
 const getFonts = () => {
   return Font.loadAsync({
@@ -15,9 +16,11 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   if (fontsLoaded) {
     return (
-      <RegionContextProvider>
-        <Navigator />
-      </RegionContextProvider>
+      <UserProvider>
+        <RegionContextProvider>
+          <Navigator />
+        </RegionContextProvider>
+      </UserProvider>
     );
   } else {
     return (

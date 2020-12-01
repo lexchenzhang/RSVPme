@@ -22,7 +22,7 @@ export default function EventForm({ addEvent: addEvent }) {
   return (
     <View style={globalStyles.container}>
       <Formik
-        initialValues={{ event_title: "", event_body: "", event_rating: "" }}
+        initialValues={{ event_title: "", event_body: "", event_rating: "1" }}
         validationSchema={eventSchema}
         onSubmit={(values, actions) => {
           actions.resetForm();
@@ -79,10 +79,10 @@ export default function EventForm({ addEvent: addEvent }) {
             </Text>
 
             <TextInput
-              style={globalStyles.input}
+              style={StyleSheet.create({height: 0})}
               placeholder="Rating (1 - 5)"
               onChangeText={props.handleChange("event_rating")}
-              value={props.values.event_rating}
+              value={"1"}
               keyboardType="numeric"
               onBlur={props.handleBlur("event_rating")}
             />

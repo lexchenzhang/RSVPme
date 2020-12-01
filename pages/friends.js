@@ -166,7 +166,7 @@ export default function Friends() {
         <Text style={styles.headers}>Friends</Text>
         {
           friends.map((value, index) => {
-            return <FriendCard username={value.user_name} onRemove={() => {
+            return <FriendCard username={value.user_name} removeIcon="clear" onRemove={() => {
               setLoadingC1(true);
               setLoadingC2(true);
               axios

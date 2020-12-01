@@ -157,6 +157,39 @@ export default function Login() {
                       if (response.data.errno === 0) {
                         console.log(`Created ${username} | ${createAccountId}`);
                         setCreatingAccount(false);
+                        const _authState = await signInAsync();
+                        setAuthState(_authState);
+                        setLoading(true);
+                        // search for sub not on database
+                        let sub = await requestSub();
+                        user.setUID(sub)
+                        let req = qs.stringify({
+                          uid: "1",
+                          appid: "capstone",
+                          access_token: "test_token",
+                          sign: "capstone",
+                          info: JSON.stringify({
+                            user_uid: sub,
+                          }),
+                        });
+                        axios
+                          .post(
+                            "https://www.splitvision.top/api/capstone/isUserExistByUID",
+                            req
+                          )
+                          .then(async function (response) {
+                            if (response.data.errno === 0) {
+                              setLoading(false);
+                            }
+                            if (response.data.errno === 4) {
+                              setCreateAccountId(await requestSub());
+                              await signOutAsync(_authState);
+                              setAuthState(null);
+                              setCreatingAccount(true);
+                              setLoading(false);
+                            }
+                          });
+
                       }
                     });
                 }

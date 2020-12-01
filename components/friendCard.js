@@ -2,12 +2,12 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function FriendCard({ username, onRemove }) {
+export default function FriendCard({ username, onRemove, removeIcon }) {
   return (
     <View style={styles.card}>
       <Text style={styles.name}>{username}</Text>
       <TouchableOpacity style={styles.icon} onPress={onRemove}>
-        <MaterialIcons name="clear" size={35}/>
+        <MaterialIcons name={removeIcon} size={35}/>
       </TouchableOpacity>
     </View>
   );

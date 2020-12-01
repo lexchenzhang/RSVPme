@@ -84,12 +84,34 @@ export default function Home({ navigation }) {
         )
         .then(function (response) {
           if (response.data.errno === 0) {
-            response.data.list.map((e) => {
-              e.key = e._ctime;
-            });
-            setEvents(response.data.list);
-            setLoading(false);
+            let eventList = [];
+            let eventCount = response.data.list.length;
+            response.data.list.map((e, i) => {
+              axios
+                .post(
+                  "https://www.splitvision.top/api/capstone/getEventByTitAndUID",
+                  qs.stringify({
+                    uid: e.uid,
+                    appid: "capstone",
+                    access_token: "test_token",
+                    sign: "capstone",
+                    info: JSON.stringify({
+                      event_title: e.event_title,
+                    }),
+                  })
+                )
+                .then(function (response) {
+                  if (response.data.errno === 0) {
+                    eventList = [response.data.list[0], ...eventList]
+                    eventList[0].key = eventList[0]._ctime;
+                    if (i + 1 === eventCount) {
+                      setEvents(eventList);
+                    }
+                  }
+                }).catch((error) => {console.log(`axios ${error}`)});
+            })
           }
+          setLoading(false);
         }).catch((error) => {console.log(`axios ${error}`)});
       } else {
         setEvents([]);
@@ -97,7 +119,10 @@ export default function Home({ navigation }) {
       }
     }
     setLoading(true);
-    fetchEvents();
+
+    const intervalId = setInterval(() => {
+      fetchEvents()
+    }, 10000)
   }, [user.uid]);
 
   if (loading) {

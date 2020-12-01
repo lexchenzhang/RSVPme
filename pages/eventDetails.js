@@ -1,9 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Text,
-  Image,
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
@@ -13,15 +12,55 @@ import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { RegionContext } from "../components/region";
+import { UserContext } from "../components/userContext";
+import axios from "axios";
+import FriendCard from "../components/friendCard";
+const qs = require("qs");
+
 
 export default function EventDetails({ navigation }) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen2, setModalOpen2] = useState(false);
   const [region] = useContext(RegionContext);
+  const user = useContext(UserContext);
+  const [friends, setFriends] = useState([]);
   const rating = navigation.getParam("event_rating");
   const rows = [];
   for (var i = 0; i < rating; i++) {
     rows.push(<MaterialIcons name="star" size={24} key={i} />);
   }
+
+  useEffect(() => {
+    async function fetchFriends() {
+      if(user.uid) {
+        axios
+        .post(
+          "https://www.splitvision.top/api/capstone/getFriendList",
+          qs.stringify({
+            uid: user.uid,
+            appid: "capstone",
+            access_token: "test_token",
+            sign: "capstone",
+            info: null,
+          })
+        )
+        .then(function (response) {
+          if (response.data.errno === 0) {
+            response.data.list.map((e) => {
+              e.key = e._ctime;
+            });
+            setFriends(response.data.list);
+          } else if (response.data.errno === 4) {
+            setFriends([]);
+          }
+        }).catch((error) => {console.log(`axios ${error}`)});
+      } else {
+        setFriends([]);
+      }
+    }
+    fetchFriends();
+  }, [])
+
   return (
     <View style={globalStyles.container}>
       <Modal visible={modalOpen} animationType="slide">
@@ -42,6 +81,80 @@ export default function EventDetails({ navigation }) {
             </View>
           </View>
         </TouchableWithoutFeedback>
+      </Modal>
+
+      <Modal visible={modalOpen2} animationType="slide">
+        <View style={styles.modalContent}>
+          <MaterialIcons
+            name="close"
+            size={24}
+            style={{ ...styles.modalToggle, ...styles.modalClose }}
+            onPress={() => setModalOpen2(false)}
+          />
+          {
+            friends.map((value, index) => {
+              return <FriendCard username={value.user_name} removeIcon="add" onRemove={() => {
+                axios
+                  .post(
+                    "https://www.splitvision.top/api/capstone/getInvitations",
+                    qs.stringify({
+                      uid: value.fid,
+                      appid: "capstone",
+                      access_token: "test_token",
+                      sign: "capstone",
+                      info: null,
+                    })
+                  )
+                  .then(function (response) {
+                    if (response.data.errno === 0) {
+                      // Check if already been added to event
+                      let addedToEvent = false;
+                      let event_title = navigation.getParam("event_title");
+                      response.data.list.map((e) => {
+                        console.log(e.event_title);
+                        if(e.event_title === event_title) {
+                          console.log("Already invited");
+                          addedToEvent = true;
+                        }
+                      });
+                      if(!addedToEvent) {
+                        axios
+                          .post(
+                            "https://www.splitvision.top/api/capstone/inviteFriends",
+                            qs.stringify({
+                              uid: user.uid,
+                              appid: "capstone",
+                              access_token: "test_token",
+                              sign: "capstone",
+                              info: JSON.stringify({
+                                users: value.fid,
+                                event_title: navigation.getParam("event_title"),
+                              }),
+                            })
+                          )
+                      }
+                    } else if (response.data.errno === 4) {
+                      axios
+                        .post(
+                          "https://www.splitvision.top/api/capstone/inviteFriends",
+                          qs.stringify({
+                            uid: user.uid,
+                            appid: "capstone",
+                            access_token: "test_token",
+                            sign: "capstone",
+                            info: JSON.stringify({
+                              users: value.fid,
+                              event_title: navigation.getParam("event_title"),
+                            }),
+                          })
+                        )
+                    }
+                  }).catch((error) => {console.log(`axios ${error}`)});
+              }} key={index} />
+            })
+          } 
+
+        </View>
       </Modal>
 
       <Card>
@@ -65,6 +178,14 @@ export default function EventDetails({ navigation }) {
             onPress={() => setModalOpen(true)}
           />
           <Text style={styles.mbtn}>Tap Icon To Show On Map</Text>
+        </View>
+        <View style={styles.inviteFriends}>
+          <MaterialIcons
+              name="person-add"
+              size={24}
+              style={styles.mbtn}
+              onPress={() => setModalOpen2(true)}
+            />
         </View>
       </Card>
     </View>

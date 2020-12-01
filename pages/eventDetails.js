@@ -10,7 +10,7 @@ import {
 import { globalStyles, images } from "../styles/global";
 import { MaterialIcons } from "@expo/vector-icons";
 import Card from "../components/card";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { RegionContext } from "../components/region";
 import { UserContext } from "../components/userContext";
 import axios from "axios";
@@ -24,6 +24,12 @@ export default function EventDetails({ navigation }) {
   const [region] = useContext(RegionContext);
   const user = useContext(UserContext);
   const [friends, setFriends] = useState([]);
+  const [location, setLocation] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421, 
+  })
   const rating = navigation.getParam("event_rating");
   const rows = [];
   for (var i = 0; i < rating; i++) {
@@ -58,7 +64,29 @@ export default function EventDetails({ navigation }) {
         setFriends([]);
       }
     }
+
+    async function fetchLocation() {
+      axios
+        .post(
+          "https://api.geocod.io/v1.6/geocode",
+          qs.stringify({
+            q: navigation.getParam("event_address"),
+            api_key: "a78a8ac5afc37554c49a9a6f69f557335854643",
+          })
+        )
+        .then((response) => {
+          if(response.status === 200) {
+            setLocation({
+              latitude: response.data.results.q.response.results[0].location.lat,
+              longitude: response.data.results.q.response.results[0].location.lng,
+              latitudeDelta: location.latitudeDelta,
+              longitudeDelta: location.longitudeDelta,
+            })
+          }
+        })
+    }
     fetchFriends();
+    fetchLocation();
   }, [])
 
   return (
@@ -76,8 +104,16 @@ export default function EventDetails({ navigation }) {
               <MapView
                 provider={PROVIDER_GOOGLE} // remove if not using Google Maps
                 style={styles.map}
-                region={region}
-              ></MapView>
+                region={location}
+                showsUserLocation={true}
+              >
+                <Marker 
+                  key={0} 
+                  coordinate={location} 
+                  title={navigation.getParam("event_title")}
+                  description={navigation.getParam("event_body")}
+                />
+              </MapView>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -166,10 +202,6 @@ export default function EventDetails({ navigation }) {
           {navigation.getParam("event_address")}
         </Text>
         <Text style={styles.textDate}>{navigation.getParam("event_date")}</Text>
-        <View style={styles.rating}>
-          <Text>Rating: </Text>
-          {rows}
-        </View>
         <View style={styles.showonmap}>
           <MaterialIcons
             name="map"
@@ -177,9 +209,6 @@ export default function EventDetails({ navigation }) {
             style={styles.mbtn}
             onPress={() => setModalOpen(true)}
           />
-          <Text style={styles.mbtn}>Tap Icon To Show On Map</Text>
-        </View>
-        <View style={styles.inviteFriends}>
           <MaterialIcons
               name="person-add"
               size={24}
